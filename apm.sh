@@ -1,28 +1,38 @@
 #! /usr/bin/env bash
 #ps aux | grep -v "grep" | grep "$process"
 #main function that loops every 5sec
+allFiles=(APM1 APM2 APM3 APM4 APM5 APM6)
 function globalLoop {
     spawnprocesses 
     while [ 1 ]
     do
-        statsCollection
+        for process in ${allFiles[@]}; do
+            statsCollection $process
+        done
         sleep 5s
     done
     TedBundy
 }
 #function that starts all processes
 function spawnprocesses {
-
+    for process in ${allFiles[@]}; do
+        ./( $process )
+    done
 }
 #function that kills everything
 function TedBundy {
     cleanup
 }
 function cleanup {
-
+    for process in ${allFiles[@]}; do
+        PID=(ps aux | grep -v "grep" | grep $process | sed 's/+{ }/,/g' | cut -d ',' -f 1)
+        kill $PID
+    done
 }
 #function that collects data
+#system_metrics.csv <seconds>, <RX data rate>, <TX data rate>, <disk writes>, <available disk capacity>
 function statsCollection {
+    touch system_metrics.csv
     ps aux | grep -v "grep" | grep "$process"
 }
 
